@@ -12,6 +12,9 @@
 	"imports": {
 		"#prompts": "./dist/prompts/index.js",
 		"#prompts/*": "./dist/prompts/*.js",
+		"#functions": "./dist/functions/index.js",
+		"#functions/*": "./dist/functions/*.js",
+		"#commands/*": "./dist/commands/*.js",
 		"#constants": "./dist/constants.js"
 	},
 	"sideEffects": "false",
