@@ -25,7 +25,7 @@ export default async (vault: string, block: string) => {
 	const xTokenHolders = xTokenData?.erc20Contract?.balances || [];
 	const xTokenEntries: any[] = xTokenHolders.map((h: any) => ({ holder: h.account.id, entries: highRound(Number(h.value)) }));
 
-	const holderEntries = new Map<string, number>();
+	let holderEntries = new Map<string, number>();
 
 	for (const vTokenEntry of vTokenEntries) {
 		holderEntries.set(vTokenEntry.holder, vTokenEntry.entries);
@@ -43,6 +43,8 @@ export default async (vault: string, block: string) => {
 	holderEntries.delete(vToken);
 	holderEntries.delete(slp);
 	for (const exclusion of forcedExclusions) holderEntries.delete(exclusion);
+
+	holderEntries = new Map([...holderEntries.entries()].sort((a, b) => b[1] - a[1]));
 
 	const outputDirectory = new URL('../../data/', import.meta.url);
 	mkdirSync(outputDirectory, { recursive: true });
