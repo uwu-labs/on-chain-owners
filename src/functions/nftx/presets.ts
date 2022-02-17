@@ -5,6 +5,7 @@ export interface Vault {
 	xToken: string;
 	xTokenWETH: string;
 	slp: string;
+	forcedExclusions: string[];
 }
 
 export const presets = new Map<string, Vault>([
@@ -16,7 +17,8 @@ export const presets = new Map<string, Vault>([
 			vToken: '0xf373a10d21cc4a9f84421c69ec2d9528b6162012',
 			xToken: '0xa183014cef1dfc81cb3fd1dd2ce2ea1380fd983d',
 			xTokenWETH: '0x1626b2cfd72dd0f8c12c3b70f4ff70fd09b63333',
-			slp: '0xee464a12d73d816081d30b536c44d0cd91baa14e'
+			slp: '0xee464a12d73d816081d30b536c44d0cd91baa14e',
+			forcedExclusions: ['0x85295666273b3d1326f6965f19702a007b4cac07', '0xf373a10d21cc4a9f84421c69ec2d9528b6162012']
 		}
 	]
 ]);

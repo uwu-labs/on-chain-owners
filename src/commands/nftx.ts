@@ -13,7 +13,7 @@ export default async (vault: string, block: string) => {
 	};
 
 	if (!presets.has(vault)) fail('Vault not found');
-	const { graph, vToken, xToken, slp } = presets.get(vault)!;
+	const { graph, vToken, xToken, slp, forcedExclusions } = presets.get(vault)!;
 
 	const vTokenData = await request(graph, TOKEN_BALANCES(vToken, Number(block))).catch((err) => fail(`vToken query failed\n${err}`));
 
@@ -30,7 +30,6 @@ export default async (vault: string, block: string) => {
 	for (const vTokenEntry of vTokenEntries) {
 		holderEntries.set(vTokenEntry.holder, vTokenEntry.entries);
 	}
-
 	for (const xTokenEntry of xTokenEntries) {
 		const existing = holderEntries.get(xTokenEntry.holder);
 
@@ -39,9 +38,11 @@ export default async (vault: string, block: string) => {
 	}
 
 	for (const entry of [...holderEntries.keys()]) if (holderEntries.get(entry) === 0) holderEntries.delete(entry);
+
 	holderEntries.delete(xToken);
 	holderEntries.delete(vToken);
 	holderEntries.delete(slp);
+	for (const exclusion of forcedExclusions) holderEntries.delete(exclusion);
 
 	const outputDirectory = new URL('../../data/', import.meta.url);
 	mkdirSync(outputDirectory, { recursive: true });
