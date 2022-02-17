@@ -46,7 +46,7 @@ export default async (vault: string, block: string) => {
 	const outputDirectory = new URL('../../data/', import.meta.url);
 	mkdirSync(outputDirectory, { recursive: true });
 	const outputFile = new URL('./holders.json', outputDirectory);
-	writeFileSync(outputFile, JSON.stringify([...holderEntries.entries()], null, 2));
+	writeFileSync(outputFile, JSON.stringify(Object.fromEntries([...holderEntries.entries()]), null, 2));
 
 	spinner.succeed();
 };
