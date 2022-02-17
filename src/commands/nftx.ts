@@ -39,6 +39,8 @@ export default async (vault: string, block: string) => {
 	}
 
 	for (const entry of [...holderEntries.keys()]) if (holderEntries.get(entry) === 0) holderEntries.delete(entry);
+	holderEntries.delete(xToken);
+	holderEntries.delete(vToken);
 
 	const outputDirectory = new URL('../../data/', import.meta.url);
 	mkdirSync(outputDirectory, { recursive: true });
