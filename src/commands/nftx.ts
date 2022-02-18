@@ -5,15 +5,15 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { request } from 'graphql-request';
 import ora from 'ora';
 
-export default async (vault: string, block: string) => {
-	const spinner = ora(`Grabbing vault "${vault}" owners`).start();
+export default async (preset: string, block: string) => {
+	const spinner = ora(`Grabbing vault "${preset}" owners`).start();
 	const fail = (error: string) => {
 		spinner.fail(error);
 		process.exit(1);
 	};
 
-	if (!presets.has(vault)) fail('Vault not found');
-	const { graph, vToken, xToken, slp, forcedExclusions } = presets.get(vault)!;
+	if (!presets.has(preset)) fail('Vault not found');
+	const { graph, vToken, xToken, slp, forcedExclusions } = presets.get(preset)!;
 
 	const vTokenData = await request(graph, TOKEN_BALANCES(vToken, Number(block))).catch((err) => fail(`vToken query failed\n${err}`));
 

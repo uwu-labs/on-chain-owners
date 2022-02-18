@@ -1,18 +1,21 @@
 import { EIP721_BASIC_ABI, publicMainnetProvider } from '#constants';
 import { NFT_BALANCES } from '#functions/graph/queries';
+import presets from '#functions/presets';
 import { Contract } from 'ethers';
 import { mkdirSync, writeFileSync } from 'fs';
 import { request } from 'graphql-request';
 import ora from 'ora';
 
-export default async (address: string, block: number) => {
-	const spinner = ora(`Grabbing holdings of "${address}"`).start();
+export default async (addressOrPreset: string, block: number) => {
+	const spinner = ora(`Grabbing holdings of "${addressOrPreset}"`).start();
 	const fail = (error: string) => {
 		spinner.fail(error);
 		process.exit(1);
 	};
 
-	const contract = new Contract(address, EIP721_BASIC_ABI, publicMainnetProvider);
+	if (!addressOrPreset.startsWith('0x') && presets.has(addressOrPreset)) addressOrPreset = presets.get(addressOrPreset)!.nft;
+
+	const contract = new Contract(addressOrPreset, EIP721_BASIC_ABI, publicMainnetProvider);
 	const totalSupply = await contract.totalSupply().catch(() => fail('"totalSupply" call failed'));
 
 	const supplyBlocks = Math.ceil(totalSupply / 999);
@@ -21,7 +24,7 @@ export default async (address: string, block: number) => {
 	for (let i = 0; i < supplyBlocks; ++i) {
 		const holdingData = await request(
 			'https://api.thegraph.com/subgraphs/name/quantumlyy/eip721-subgraph-mainnet',
-			NFT_BALANCES(address, Number(block), 999, i * 999)
+			NFT_BALANCES(addressOrPreset, Number(block), 999, i * 999)
 		).catch((err) => fail(`holders query failed\n${err}`));
 
 		const holdings = holdingData?.erc721Contract?.tokens || [];

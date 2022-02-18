@@ -23,13 +23,13 @@ owners //
 
 owners //
 	.command('nfts')
-	.argument('<address>', 'Contract address')
+	.argument('<addressOrPreset>', 'Contract address or preset containing it')
 	.argument('<block>', 'Block number')
 	.action(nftsCmd);
 
 owners //
 	.command('nftx')
-	.argument('<vault>', 'Vault preset')
+	.argument('<preset>', 'Vault preset')
 	.argument('<block>', 'Block number')
 	.action(ntfxCmd);
 
