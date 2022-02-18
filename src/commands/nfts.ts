@@ -13,7 +13,8 @@ export default async (addressOrPreset: string, block: number) => {
 		process.exit(1);
 	};
 
-	if (!addressOrPreset.startsWith('0x') && presets.has(addressOrPreset)) addressOrPreset = presets.get(addressOrPreset)!.nft;
+	const preset = presets.get(addressOrPreset);
+	if (!addressOrPreset.startsWith('0x') && preset) addressOrPreset = preset.nft;
 
 	const contract = new Contract(addressOrPreset, EIP721_BASIC_ABI, publicMainnetProvider);
 	const totalSupply = await contract.totalSupply().catch(() => fail('"totalSupply" call failed'));
@@ -38,6 +39,14 @@ export default async (addressOrPreset: string, block: number) => {
 	}
 
 	for (const entry of [...holderEntries.keys()]) if (holderEntries.get(entry) === 0) holderEntries.delete(entry);
+
+	if (preset) {
+		const { xToken, vToken, slp, forcedExclusions } = preset;
+		holderEntries.delete(xToken);
+		holderEntries.delete(vToken);
+		holderEntries.delete(slp);
+		for (const exclusion of forcedExclusions) holderEntries.delete(exclusion);
+	}
 
 	holderEntries = new Map([...holderEntries.entries()].sort((a, b) => b[1] - a[1]));
 
