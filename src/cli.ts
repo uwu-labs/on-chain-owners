@@ -5,6 +5,7 @@ import { readFile } from 'fs/promises';
 import { URL } from 'url';
 
 import infoCmd from '#commands/info';
+import nftsCmd from '#commands/nfts';
 import ntfxCmd from '#commands/nftx';
 
 const owners = new Command();
@@ -19,6 +20,12 @@ owners //
 	.alias('i')
 	.argument('<address>', 'Contract address')
 	.action(infoCmd);
+
+owners //
+	.command('nfts')
+	.argument('<address>', 'Contract address')
+	.argument('<block>', 'Block number')
+	.action(nftsCmd);
 
 owners //
 	.command('nftx')

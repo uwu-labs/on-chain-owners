@@ -1,6 +1,6 @@
 import { highRound } from '#functions';
 import { TOKEN_BALANCES } from '#functions/graph/queries';
-import presets from '#functions/nftx/presets';
+import presets from '#functions/presets';
 import { mkdirSync, writeFileSync } from 'fs';
 import { request } from 'graphql-request';
 import ora from 'ora';
@@ -48,7 +48,7 @@ export default async (vault: string, block: string) => {
 
 	const outputDirectory = new URL('../../data/', import.meta.url);
 	mkdirSync(outputDirectory, { recursive: true });
-	const outputFile = new URL('./holders.json', outputDirectory);
+	const outputFile = new URL('./nftxHolders.json', outputDirectory);
 	writeFileSync(outputFile, JSON.stringify(Object.fromEntries([...holderEntries.entries()]), null, 2));
 
 	spinner.succeed();
