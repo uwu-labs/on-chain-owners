@@ -9,7 +9,7 @@ export default () => {
 	const nftsFile = new URL('./nftHolders.json', outputDirectory);
 	const nftxFile = new URL('./nftxHolders.json', outputDirectory);
 
-	const holdings = new Map<string, number>();
+	let holdings = new Map<string, number>();
 
 	const nftsRaw: { [K: string]: number } = JSON.parse(readFileSync(fileURLToPath(nftsFile), { encoding: 'utf8' }));
 	const nfts = new Map<string, number>(Object.entries(nftsRaw));
@@ -27,6 +27,8 @@ export default () => {
 			else holdings.set(holder, amount);
 		}
 	}
+
+	holdings = new Map([...holdings.entries()].sort((a, b) => b[1] - a[1]));
 
 	const outputFile = new URL('./holders.json', outputDirectory);
 	writeFileSync(outputFile, JSON.stringify(Object.fromEntries([...holdings.entries()]), null, 2));
