@@ -38,7 +38,8 @@ owners //
 	.command('nftx')
 	.argument('<preset>', 'Vault preset')
 	.argument('<block>', 'Block number')
-	.action(ntfxCmd);
+	// @ts-expect-error Passing args.
+	.action((...args) => ntfxCmd(false, ...args));
 
 owners //
 	.command('all')
@@ -50,7 +51,7 @@ owners //
 		// @ts-expect-error Passing args.
 		await nftsCmd(...args);
 		// @ts-expect-error Passing args.
-		await ntfxCmd(...args);
+		await ntfxCmd(true, ...args);
 		mergeCmd();
 	});
 

@@ -5,7 +5,9 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { request } from 'graphql-request';
 import ora from 'ora';
 
-export default async (preset: string, block: string) => {
+export default async (joint: boolean, preset: string, block: string) => {
+	if (joint && !presets.has(preset)) return;
+
 	const spinner = ora(`Grabbing vault "${preset}" owners`).start();
 	const fail = (error: string) => {
 		spinner.fail(error);
