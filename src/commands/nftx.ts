@@ -6,7 +6,7 @@ import { request } from 'graphql-request';
 import ora from 'ora';
 
 export default async (joint: boolean, preset: string, block: string) => {
-	if (joint && !presets.has(preset)) return;
+	if (joint && !presets.get(preset)?.nftx) return;
 
 	const spinner = ora(`Grabbing vault "${preset}" owners`).start();
 	const fail = (error: string) => {

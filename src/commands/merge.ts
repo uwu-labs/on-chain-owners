@@ -11,10 +11,16 @@ export default () => {
 
 	let holdings = new Map<string, number>();
 
-	const nftsRaw: { [K: string]: number } = JSON.parse(readFileSync(fileURLToPath(nftsFile), { encoding: 'utf8' }));
+	let nftsRaw: { [K: string]: number } = {};
+	try {
+		nftsRaw = JSON.parse(readFileSync(fileURLToPath(nftsFile), { encoding: 'utf8' }));
+	} catch {}
 	const nfts = new Map<string, number>(Object.entries(nftsRaw));
 
-	const nftxRaw: { [K: string]: number } = JSON.parse(readFileSync(fileURLToPath(nftxFile), { encoding: 'utf8' }));
+	let nftxRaw: { [K: string]: number } = {};
+	try {
+		nftxRaw = JSON.parse(readFileSync(fileURLToPath(nftxFile), { encoding: 'utf8' }));
+	} catch {}
 	const nftx = new Map<string, number>(Object.entries(nftxRaw));
 
 	const states = [nfts, nftx];
