@@ -1,4 +1,5 @@
 import { EIP721_BASIC_ABI, publicMainnetProvider } from '#constants';
+import { excludeUsingGlobals } from '#functions/exclude';
 import { NFT_BALANCES } from '#functions/graph/queries';
 import presets from '#functions/presets';
 import { Contract } from 'ethers';
@@ -47,6 +48,7 @@ export default async (addressOrPreset: string, block: number) => {
 		holderEntries.delete(slp);
 		for (const exclusion of forcedExclusions) holderEntries.delete(exclusion);
 	}
+	holderEntries = excludeUsingGlobals(holderEntries);
 
 	holderEntries = new Map([...holderEntries.entries()].sort((a, b) => b[1] - a[1]));
 

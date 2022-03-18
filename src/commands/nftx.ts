@@ -1,4 +1,5 @@
 import { highRound } from '#functions';
+import { excludeUsingGlobals } from '#functions/exclude';
 import { TOKEN_BALANCES } from '#functions/graph/queries';
 import presets from '#functions/presets';
 import { mkdirSync, writeFileSync } from 'fs';
@@ -45,6 +46,7 @@ export default async (joint: boolean, preset: string, block: string) => {
 	holderEntries.delete(vToken);
 	holderEntries.delete(slp);
 	for (const exclusion of forcedExclusions) holderEntries.delete(exclusion);
+	holderEntries = excludeUsingGlobals(holderEntries);
 
 	holderEntries = new Map([...holderEntries.entries()].sort((a, b) => b[1] - a[1]));
 
