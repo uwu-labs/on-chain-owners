@@ -34,6 +34,17 @@ presets.set('uwu', {
 	forcedExclusions: [...globalExclusions, '0x354a70969f0b4a4c994403051a81c2ca45db3615']
 });
 
+presets.set('waifu', {
+	nftx: true,
+	graph: 'https://api.thegraph.com/subgraphs/name/quantumlyy/waifu-nftx-vault-subgraph-mainnet',
+	nft: '0x2216d47494e516d8206b70fca8585820ed3c4946',
+	vToken: '0xe7f4c89032a2488d327323548ab0459676269331',
+	xToken: '0xb91bca4c6a607448a093803b3b2a9a4ed3e9f71e',
+	xTokenWETH: '0x77655099f72484fa7d8cd701112c129b35b6ca6a',
+	slp: '0xd9f21104a0ab4bb2bc70774d4472b3c885fd022c',
+	forcedExclusions: [...globalExclusions]
+});
+
 presets.set('lamps', {
 	nftx: false,
 	graph: '',
