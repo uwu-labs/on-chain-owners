@@ -24,3 +24,16 @@ export const NFT_BALANCES = (addr: string, block: number, pagingBy = 999, paging
 		}
 	}
 `;
+
+export const CURR_BLOCK_NFT_BALANCES = (addr: string, pagingBy = 999, pagingFrom = 0, pagingTo: number = pagingFrom + pagingBy) => gql`
+	{
+		erc721Contract(id: "${addr}") {
+			tokens(first: 999, where: { identifier_gte: ${pagingFrom}, identifier_lt: ${pagingTo}}) {
+				identifier
+				owner {
+					id
+				}
+			}
+		}
+	}
+`;

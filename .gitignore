@@ -24,3 +24,7 @@ package-lock.json
 gh
 
 data/
+
+csv/
+
+results/

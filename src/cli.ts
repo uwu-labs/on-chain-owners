@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { readFile } from 'fs/promises';
 import { URL } from 'url';
 
+import aikoCmd from '#commands/aiko';
 import cleanCmd from '#commands/clean';
 import infoCmd from '#commands/info';
 import mergeCmd from '#commands/merge';
@@ -53,6 +54,15 @@ owners //
 		// @ts-expect-error Passing args.
 		await ntfxCmd(true, ...args);
 		mergeCmd();
+	});
+
+owners //
+	.command('aiko')
+	.alias('ak')
+	.action(async (...args) => {
+		cleanCmd();
+		// @ts-expect-error Passing args.
+		await aikoCmd(...args);
 	});
 
 owners.parse(process.argv);
