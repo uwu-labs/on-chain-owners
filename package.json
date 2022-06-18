@@ -2,6 +2,10 @@
 	"name": "@uwu-labs/on-chain-owners",
 	"version": "1.0.0",
 	"author": "Quantumlyy <yo@quantumly.dev>",
+	"contributes": {
+		"name": "Sporidium.eth", 
+		"email": "spori.labs@gmail.com"
+	},
 	"license": "UNLICENSED",
 	"private": true,
 	"type": "module",
@@ -40,6 +44,7 @@
 	"dependencies": {
 		"chalk": "^5.0.0",
 		"commander": "^9.0.0",
+		"dotenv": "^16.0.1",
 		"ethers": "^5.5.4",
 		"graphql": "^16.3.0",
 		"graphql-request": "^4.0.0",

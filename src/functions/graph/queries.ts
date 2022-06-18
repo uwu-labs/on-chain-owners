@@ -24,3 +24,22 @@ export const NFT_BALANCES = (addr: string, block: number, pagingBy = 999, paging
 		}
 	}
 `;
+
+export const MATIC_NFT_BALANCES_BLOCK = (addr: string, block: number, tokenId: number, skipBy: number) => gql`
+	{
+		erc1155Contract(id: "${addr}", block: { number: ${block} }) {
+			tokens(where: { identifier: ${tokenId} }) {
+				identifier
+				totalSupply {
+					valueExact
+				}
+				balances(first: 999, skip: ${skipBy}) {
+					valueExact
+					account {
+						id
+					}
+				}
+			}
+		}
+	}
+`;

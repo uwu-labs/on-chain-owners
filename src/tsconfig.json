@@ -5,7 +5,13 @@
 		"outDir": "../dist",
 		"composite": true,
 		"preserveConstEnums": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"lib": [
+            "es5", "es6", "dom", "dom.iterable"
+        ]
 	},
 	"include": ["."]
 }
