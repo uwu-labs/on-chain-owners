@@ -25,6 +25,18 @@ export const NFT_BALANCES = (addr: string, block: number, pagingBy = 999, paging
 	}
 `;
 
+export const NFT_BALANCES_LATEST_BLOCK = (addr: string, pagingBy = 999, pagingFrom = 0, pagingTo: number = pagingFrom + pagingBy) => gql`
+	{
+		erc721Contract(id: "${addr}") {
+			tokens(first: ${pagingBy}, where: { identifier_gte: ${pagingFrom}, identifier_lt: ${pagingTo}, owner_gt: "" }) {
+				owner {
+					id
+				}
+			}
+		}
+	}
+`;
+
 export const MATIC_NFT_BALANCES_BLOCK = (addr: string, block: number, tokenId: number, skipBy: number) => gql`
 	{
 		erc1155Contract(id: "${addr}", block: { number: ${block} }) {

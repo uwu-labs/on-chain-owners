@@ -1,10 +1,11 @@
-import { EIP1155_BASIC_ABI, maticPublicMainnetProvider, MATIC_STAMP } from '#constants';
+import { EIP1155_BASIC_ABI, EIP721_BASIC_ABI, maticPublicMainnetProvider, MATIC_STAMP, publicMainnetProvider } from '#constants';
 import { excludeUsingGlobals } from '#functions/exclude';
-import { MATIC_NFT_BALANCES_BLOCK } from '#functions/graph/queries';
+import { MATIC_NFT_BALANCES_BLOCK, NFT_BALANCES_LATEST_BLOCK } from '#functions/graph/queries';
 import { Contract } from 'ethers';
 import { mkdirSync, writeFileSync } from 'fs';
 import { request } from 'graphql-request';
 import ora from 'ora';
+import presets from '#functions/presets';
 import 'dotenv/config';
 
 export default async (block: number, rafflIds: string) => {
@@ -33,7 +34,7 @@ export default async (block: number, rafflIds: string) => {
 			const tokens = holdingData?.erc1155Contract.tokens || [];
 			for (const token of tokens) {
 				for (const holderBalance of token.balances) {
-					const amountHeld = holderBalance.valueExact;
+					const amountHeld = Number(holderBalance.valueExact);
 					if (holderBalance.account === null) continue;
 					const holder = holderEntries.get(holderBalance.account.id);
 					if (!holder) holderEntries.set(holderBalance.account.id, amountHeld);
@@ -53,15 +54,14 @@ export default async (block: number, rafflIds: string) => {
 		holderEntries = new Map([...holderEntries.entries()].sort((a, b) => b[1] - a[1]));
 		const outputDirectory = new URL('../../data/', import.meta.url);
 		mkdirSync(outputDirectory, { recursive: true });
-		const outputFile = new URL(`./nftHoldersRaffleId${raffleId}.json`, outputDirectory);
+		const outputFile = new URL(`./stampHoldersRaffleId${raffleId}.json`, outputDirectory);
 		writeFileSync(outputFile, JSON.stringify(Object.fromEntries([...holderEntries.entries()]), null, 2));
 	}
 
-	// Filter for eligible holders by checking if address exists in all all holderRaffleId maps
-	const smallestHolderEntriesMap = getSmallestHolderMap(holderStampEntries);
-	holderStampEntries.delete(smallestHolderEntriesMap.key);
-	let fullStampHolders = filterEligibleAddresses(smallestHolderEntriesMap.value, holderStampEntries);
-	fullStampHolders = fullStampHolders.sort((a, b) => Number(b.balance) - Number(a.balance));
+	// Fetch KGF holders
+	const kgfHolderMap = fetchKGFHolders(fail);
+	let fullStampHolders = filterEligibleAddresses(await kgfHolderMap, holderStampEntries);
+	fullStampHolders = fullStampHolders.sort((a, b) => b.balance - a.balance);
 
 	// Raffle lists and raffleWinner
 	const tempRaffleList = fillFinalHolderRaffleList(fullStampHolders);
@@ -86,7 +86,6 @@ export default async (block: number, rafflIds: string) => {
 
 const filterRaffleIds = async (raffleIdList: Array<string>, contract: Contract, fail: { (error: string): never; (arg0: string): any }) => {
 	const filteredRaffleIds = new Array<number>();
-	console.log('\n', filteredRaffleIds.length, raffleIdList.length, raffleIdList);
 
 	for (const raffleId of raffleIdList) {
 		const exists = await contract.exists(Number(raffleId)).catch(() => fail('"exists" call failed'));
@@ -94,32 +93,19 @@ const filterRaffleIds = async (raffleIdList: Array<string>, contract: Contract, 
 	}
 	return filteredRaffleIds.sort();
 };
-// Easier to loop over smallestMap to filter for addresses that exisit in all holderStampEntries.values()
-const getSmallestHolderMap = (holderStampEntries: Map<number, Map<string, number>>) => {
-	const smallestMapEntry = { key: 0, value: new Map<string, number>() };
-	let smallestMapSize = 0;
-	for (const [k, v] of holderStampEntries.entries()) {
-		if (smallestMapSize <= v.size) {
-			smallestMapEntry.key = k;
-			smallestMapEntry.value = v;
-			smallestMapSize = v.size;
-		}
-	}
-	return smallestMapEntry;
-};
 
 /* Filter the holderStampEntries for addresses that exist across all holderStampEntries.values().
 We are also reducing the holder onject to contain the min full stamp collection as final balance. */
-const filterEligibleAddresses = (smallestHolderMap: Map<string, number>, holderStampEntries: Map<number, Map<string, number>>) => {
+const filterEligibleAddresses = (kgfHolderMap: Map<string, number>, holderStampEntries: Map<number, Map<string, number>>) => {
 	const finalStatsList = [];
-	for (const [k, v] of smallestHolderMap) {
+	for (const [k, v] of kgfHolderMap) {
 		let hasAllStamps = true;
 		const tempStatsList = [];
-		const smallStampStats = {
+		const kgfStampStats = {
 			address: k,
 			balance: v
 		};
-		tempStatsList.push(smallStampStats);
+		tempStatsList.push(kgfStampStats);
 		for (const value of holderStampEntries.values()) {
 			if (!value.has(k)) {
 				hasAllStamps = false;
@@ -139,19 +125,20 @@ const filterEligibleAddresses = (smallestHolderMap: Map<string, number>, holderS
 
 		if (hasAllStamps) {
 			const finalStampStats = tempStatsList.reduce((res, obj) => {
-				return Number(obj.balance) < Number(res.balance) ? obj : res;
+				return obj.balance < res.balance ? obj : res;
 			});
 			finalStatsList.push(finalStampStats);
 		}
 	}
 	return finalStatsList;
 };
+
 // Populate finalRaffleList by decoupling holder obj and appending that holder.address n balances number of times.
 const fillFinalHolderRaffleList = (fullStampHolders: { address: string; balance: number }[]) => {
 	const res: string[] = [];
 
 	for (const holder of fullStampHolders) {
-		const addressList = Array(Number(holder.balance)).fill(holder.address);
+		const addressList = Array(holder.balance).fill(holder.address);
 		res.push(...addressList);
 	}
 
@@ -165,4 +152,51 @@ const shuffleRaffleList = (finalRaffleList: Array<string>) => {
 		[finalRaffleList[i], finalRaffleList[j]] = [finalRaffleList[j], finalRaffleList[i]];
 	}
 	return finalRaffleList;
+};
+
+// Query EIP721 subgraph using latest block to fetch current KGF holders
+const fetchKGFHolders = async (fail: { (error: string): never; (arg0: string): any }) => {
+	const preset = presets.get('kgf');
+	let holderEntries = new Map<string, number>();
+	if (preset) {
+		const address = preset.nft;
+		const contract = new Contract(address, EIP721_BASIC_ABI, publicMainnetProvider);
+		const totalSupply = await contract.totalSupply().catch(() => fail('"totalSupply" call failed'));
+		const supplyBlocks = Math.ceil(totalSupply / 999);
+
+		for (let i = 0; i < supplyBlocks; ++i) {
+			const holdingData = await request(
+				'https://api.thegraph.com/subgraphs/name/quantumlyy/eip721-subgraph-mainnet',
+				NFT_BALANCES_LATEST_BLOCK(address, 999, i * 999)
+			).catch((err) => fail(`holders query failed\n${err}`));
+
+			const holdings = holdingData?.erc721Contract?.tokens || [];
+
+			for (const holding of holdings) {
+				const existing = holderEntries.get(holding.owner.id);
+
+				if (existing) holderEntries.set(holding.owner.id, existing + 1);
+				else holderEntries.set(holding.owner.id, 1);
+			}
+		}
+
+		for (const entry of [...holderEntries.keys()]) if (holderEntries.get(entry) === 0) holderEntries.delete(entry);
+
+		// Are we doing exlusions?
+		const { xToken, vToken, slp, forcedExclusions } = preset;
+		holderEntries.delete(xToken);
+		holderEntries.delete(vToken);
+		holderEntries.delete(slp);
+		for (const exclusion of forcedExclusions) holderEntries.delete(exclusion);
+
+		holderEntries = excludeUsingGlobals(holderEntries);
+
+		holderEntries = new Map([...holderEntries.entries()].sort((a, b) => b[1] - a[1]));
+
+		const outputDirectory = new URL('../../data/', import.meta.url);
+		mkdirSync(outputDirectory, { recursive: true });
+		const outputFile = new URL('./kgfHolders.json', outputDirectory);
+		writeFileSync(outputFile, JSON.stringify(Object.fromEntries([...holderEntries.entries()]), null, 2));
+	}
+	return holderEntries;
 };

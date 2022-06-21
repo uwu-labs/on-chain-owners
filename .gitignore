@@ -26,3 +26,6 @@ gh
 data/
 
 final/
+
+.env
+.env.local
