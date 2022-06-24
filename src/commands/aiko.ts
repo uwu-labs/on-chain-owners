@@ -10,11 +10,11 @@ import { convertCSVToJSON, convertToCSV } from '#functions/csv';
 export default async () => {
 	const nftHolderMap = await fetchPartnerHolderBalances();
 	const csvJSON = await convertCSVToJSON();
-	const partnerKeys = ['UWU ORB', 'KGF ORB', 'LAMP ORB', 'KAIJU ORB', 'CAPS ORB', 'ASUNA ORB', 'MURI ORB', 'HAUS ORB'];
+	const partnerKeys = ['UWU', 'KGF', 'LAMP', 'KAIJU', 'CAPS', 'ASUNA', 'MURI', 'HAUS'];
 	const reducedHolders = [];
 	const deletedHolders = [];
 	const prevSize = csvJSON.length;
-	const prevWhitelistAmount = csvJSON.reduce((acc, obj) => {
+	const prevWhitelistAmount = csvJSON.reduce((acc: number, obj: { field1: number }) => {
 		if (Number(obj.field1) > 3) {
 			obj.field1 = 3;
 		}

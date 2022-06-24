@@ -26,3 +26,6 @@ gh
 data/
 
 results/
+
+.env
+.env.local

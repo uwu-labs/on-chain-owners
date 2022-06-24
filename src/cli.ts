@@ -5,6 +5,7 @@ import { readFile } from 'fs/promises';
 import { URL } from 'url';
 
 import aikoCmd from '#commands/aiko';
+import aikoWLCmd from '#commands/aikoWL';
 import cleanCmd from '#commands/clean';
 import infoCmd from '#commands/info';
 import mergeCmd from '#commands/merge';
@@ -63,6 +64,16 @@ owners //
 		cleanCmd();
 		// @ts-expect-error Passing args.
 		await aikoCmd(...args);
+	});
+
+owners //
+	.command('aiko-whitelist')
+	.alias('ak-wl')
+	.argument('<block>', 'Block number')
+	.action(async (...args) => {
+		cleanCmd();
+		// @ts-expect-error Passing args.
+		await aikoWLCmd(...args);
 	});
 
 owners.parse(process.argv);
