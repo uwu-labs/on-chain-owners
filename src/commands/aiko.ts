@@ -14,11 +14,16 @@ export default async () => {
 	const reducedHolders = [];
 	const deletedHolders = [];
 	const prevSize = csvJSON.length;
+<<<<<<< HEAD
 	const prevWhitelistAmount = csvJSON.reduce((acc: number, obj: { field1: number }) => {
 		if (Number(obj.field1) > 3) {
 			obj.field1 = 3;
 		}
 		return acc + Number(obj.field1);
+=======
+	const prevWhitelistAmount = csvJSON.reduce((acc, obj) => {
+		return acc + (Number(obj.field1) > 3 ? 3 : Number(obj.field1));
+>>>>>>> 38fef8d09d2efb19edd2500b96f19a68240e15c9
 	}, 0);
 	for (const row of csvJSON) {
 		row['MAX MINT FOR PARTNERSHIP ORB IS 3'] = row['MAX MINT FOR PARTNERSHIP ORB IS 3'].toLowerCase();
@@ -34,11 +39,11 @@ export default async () => {
 							return obj.name === `${key}`;
 						});
 						if (whiteListCaps && currentBalance) {
-							if (currentBalance > whiteListCaps['3']) {
+							if (currentBalance >= whiteListCaps['3']) {
 								row[key] = `3`;
-							} else if (currentBalance > whiteListCaps['2']) {
+							} else if (currentBalance >= whiteListCaps['2']) {
 								row[key] = `2`;
-							} else {
+							} else if (currentBalance >= whiteListCaps['1']) {
 								row[key] = `1`;
 							}
 							validEntries += Number(row[key]);
