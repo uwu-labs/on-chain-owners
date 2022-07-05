@@ -9,6 +9,7 @@ import infoCmd from '#commands/info';
 import mergeCmd from '#commands/merge';
 import nftsCmd from '#commands/nfts';
 import ntfxCmd from '#commands/nftx';
+import raffleCmd from '#commands/raffle';
 
 const owners = new Command();
 
@@ -53,6 +54,17 @@ owners //
 		// @ts-expect-error Passing args.
 		await ntfxCmd(true, ...args);
 		mergeCmd();
+	});
+
+owners //
+	.command('raffle')
+	.alias('r')
+	.argument('<block>', 'Block number')
+	.argument('<rafflIds>', 'Raffle ids')
+	.action(async (...args) => {
+		cleanCmd();
+		// @ts-expect-error Passing args.
+		await raffleCmd(...args);
 	});
 
 owners.parse(process.argv);
