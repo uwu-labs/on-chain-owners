@@ -56,4 +56,15 @@ presets.set('lamps', {
 	forcedExclusions: [...globalExclusions]
 });
 
+presets.set('aiko', {
+	nftx: false,
+	graph: '',
+	nft: '0xb661ab9bcd2878c5f8c136f67fd550a9d7df7197',
+	vToken: '',
+	xToken: '',
+	xTokenWETH: '',
+	slp: '',
+	forcedExclusions: [...globalExclusions]
+});
+
 export default presets;
